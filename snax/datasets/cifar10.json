@@ -1,0 +1,13 @@
+{
+  "folder": "cifar10",
+  "data": {
+    "url": "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz",
+    "filename": "cifar-10.tar.gz",
+    "size": [
+      60000,
+      32,
+      32,
+      3
+    ]
+  }
+}
