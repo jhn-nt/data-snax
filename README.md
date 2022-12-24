@@ -105,10 +105,10 @@ It is to note however that `snax.data.Dataset` cannot replace `tf.data.Dataset` 
 
 ## Differences between `snax.data.Dataset` and `tf.data.Dataset`
 In this current verions it supports:  
-  1. `map`: behavior equal to that of `tf.data.Dataset.map`  
-  2. `take`: behavior equal to that of `tf.data.Dataset.take`  
-  3. `skip`: behavior equal to that of `tf.data.Dataset.skip`  
-  4. `zip`: behavior equal to that of `tf.data.Dataset.zip`  
+  1. `map`: behavior is equal to that of `tf.data.Dataset.map`  
+  2. `take`: behavior is equal to that of `tf.data.Dataset.take`  
+  3. `skip`: behavior is equal to that of `tf.data.Dataset.skip`  
+  4. `zip`: behavior is equal to that of `tf.data.Dataset.zip`  
   5. `shuffle`: behavior is equal to `tf.data.Dataset.shuffle` but with different input signature, instead of a `shuffle_buffer` it requires a `jax.random.PRNGKEY`.  
   ```python
 import snax as sn
