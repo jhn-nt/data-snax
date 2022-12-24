@@ -156,5 +156,6 @@ I figured how to do it afterward.
 ## Disclaimer
 `snax` was developed as an excercise to learn bits of the `jax` ecosystem and perhaps for the enjoyment of the community. It does not have any production or professional ambition nor does it hold any techinal or scientific quality to be so. 
 
-Feel free to contribute
+Feel free to contribute  
+
 Cheers
