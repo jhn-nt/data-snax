@@ -72,7 +72,7 @@ tf_dataset=tfds.load("mnist") # tensorflow
 ## Accellerating data trasformation with `snax.jit()`
 `jax` introduces several new features, amongst which the abilty to _jit_ functions.  
 [jax.jit()](https://jax.readthedocs.io/en/latest/_autosummary/jax.jit.html#jax.jit) particularly shines (more [here](https://jax.readthedocs.io/en/latest/jax-101/02-jitting.html#when-to-use-jit:~:text=30-,When%20to%20use%20JIT,-%23)) when applied to complex functions that needs to be called many times, for example with complex models or for  _transformations applied to data batches_.  
-`snax.data.Dataset` supports `jax.jit` via the the `jit()` method which _jits_ all _mapped_ transformations in one single encapsulation hence _increasing by a significant margin_ the rate of data injestion.  
+`snax.data.Dataset` supports `jax.jit` via the `jit()` method which _jits_ all _mapped_ transformations in one single encapsulation hence _increasing by a significant margin_ the rate of data injestion.  
 This feature is most useful when applied __after__ one or more `map` calls. 
 
 ```python
@@ -105,11 +105,11 @@ It is to note however that `snax.data.Dataset` cannot replace `tf.data.Dataset` 
 
 ## Differences between `snax.data.Dataset` and `tf.data.Dataset`
 In this current verions it supports:  
-  1. `map`: behavior is equal to that of `tf.data.Dataset.map`  
-  2. `take`: behavior is equal to that of `tf.data.Dataset.take`  
-  3. `skip`: behavior is equal to that of `tf.data.Dataset.skip`  
-  4. `zip`: behavior is equal to that of `tf.data.Dataset.zip`  
-  5. `shuffle`: behavior is equal to `tf.data.Dataset.shuffle` but with different input signature, instead of a `shuffle_buffer` it requires a `jax.random.PRNGKEY`.  
+  1. `map`: behavior is similar to that of `tf.data.Dataset.map`  
+  2. `take`: behavior is similar to that of `tf.data.Dataset.take`  
+  3. `skip`: behavior is similar to that of `tf.data.Dataset.skip`  
+  4. `zip`: behavior is similar to that of `tf.data.Dataset.zip`  
+  5. `shuffle`: behavior is similar to `tf.data.Dataset.shuffle` but with different input signature, instead of a `shuffle_buffer` it requires a `jax.random.PRNGKEY`.  
   ```python
 import snax as sn
 import tensorflow as tf
