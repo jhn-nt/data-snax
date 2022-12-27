@@ -3,7 +3,7 @@
 The pun is very intended.
 
 ![version](https://img.shields.io/badge/version-0.1-red)
-![python](https://img.shields.io/badge/python-3.8-green)
+![python](https://img.shields.io/badge/python->=3.8-green)
 
 ## Installation 
 ```sh
@@ -104,16 +104,16 @@ It is to note however that `snax.data.Dataset` cannot replace `tf.data.Dataset` 
 ![boxplots](src/boxplots.png)  
 
 ## Differences between `snax.data.Dataset` and `tf.data.Dataset`
-In this current verions it supports:  
+In this current version it supports:  
   1. `map`: behavior is similar to that of `tf.data.Dataset.map`  
   2. `take`: behavior is similar to that of `tf.data.Dataset.take`  
   3. `skip`: behavior is similar to that of `tf.data.Dataset.skip`  
   4. `zip`: behavior is similar to that of `tf.data.Dataset.zip`  
-  5. `shuffle`: behavior is similar to `tf.data.Dataset.shuffle` but with different input signature, instead of a `shuffle_buffer` it requires a `jax.random.PRNGKEY`.  
+  5. `shuffle`: behavior is similar to `tf.data.Dataset.shuffle` but with different input signature, instead of a `buffer_size` it requires a `jax.random.PRNGKey`.  
   ```python
 import snax as sn
 import tensorflow as tf
-from jax.random import PRNGKEY
+from jax.random import PRNGKey
 
 X_y=(X,y) # some random dataset
 
@@ -122,7 +122,7 @@ sn_dataset=sn.data.Dataset.from_tensor_slices(X_y) # snax
 tf_dataset=tf.data.Dataset.from_tensor_slices(X_y) # tensorflow
 
 # difference in `shuffle` behavior
-sn_dataset=sn_dataset.shuffle(PRNGKEY(0)) # snax
+sn_dataset=sn_dataset.shuffle(PRNGKey(0)) # snax
 tf_dataset=tf_dataset.shuffle(1024) # tensorflow
 ```
   6. `batch`: similar behavior to `tf.data.Dataset.batch` but completely different mechanics.
@@ -154,7 +154,8 @@ I figured how to do it afterward.
 
 
 ## Disclaimer
-`snax` was developed as an excercise to learn bits of the `jax` ecosystem and perhaps for the enjoyment of the community. It does not have any production or professional ambition nor does it hold any techinal or scientific quality to be so. 
+`snax` was developed as an excercise to learn bits of the `jax` ecosystem and perhaps for the enjoyment of the community.  
+It does not have any professional ambition nor does it hold any technical or scientific quality to be so. 
 
 Feel free to contribute  
 
