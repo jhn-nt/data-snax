@@ -4,7 +4,6 @@ from jax import vmap, jit
 from jax.random import PRNGKey, uniform, permutation
 from jaxlib.xla_extension.pytree import PyTreeDef
 from jaxlib.xla_extension import DeviceArray, CompiledFunction
-from tqdm import tqdm
 
 import numpy as np
 from datetime import datetime
