@@ -9,5 +9,5 @@ setup(
     license="Apache 2.0",
     author="jhn-nt",
     packages=["snax"],
-    package_data={"snax": "datasets/*.json"},
+    package_data={"snax": ["datasets/*.json"]},
 )
