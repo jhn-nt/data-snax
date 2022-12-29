@@ -6,6 +6,7 @@ setup(
     version="0.1",
     description="Versatile data ingestion pipelines for jax",
     install_requires=["numpy>=1.23", "jax>=0.3.25"],
-    license='Apache 2.0',
-    author='jhn-nt',
+    license="Apache 2.0",
+    author="jhn-nt",
+    packages=["snax"]
 )

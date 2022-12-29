@@ -96,12 +96,12 @@ sn_dataset=ds.map(processing)
 jitted_sn_dataset=sn_dataset.jit() # boosting performance
 ```
 In a small scale testing experiment, the use of  `snax.jit()` increased speed on average by 23% compared to `tf.data.Dataset` and by 68% compared to vanilla `snax.data.Dataset`.
-![comparisons](src/comparisons.png)
+![comparisons](images/comparisons.png)
 
 ## A note on performance
 `snax.data.Dataset` can iterate through batches with impressive speed, even more when leveraging `snax.jit()`.
 It is to note however that `snax.data.Dataset` cannot replace `tf.data.Dataset` since it cannot scale as `tf.data.Dataset` and it is not as stable as `tf.data.Dataset`. Infact, the stability of `tf.data.Dataset` is impressive, even when changing batch sizes by an order magnitude the time to iterate over a batch changes on average only by __.10 seconds__, wow.    
-![boxplots](src/boxplots.png)  
+![boxplots](images/boxplots.png)  
 
 ## Differences between `snax.data.Dataset` and `tf.data.Dataset`
 In this current version it supports:  
