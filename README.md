@@ -125,27 +125,13 @@ tf_dataset=tf.data.Dataset.from_tensor_slices(X_y) # tensorflow
 sn_dataset=sn_dataset.shuffle(PRNGKey(0)) # snax
 tf_dataset=tf_dataset.shuffle(1024) # tensorflow
 ```
-  6. `batch`: similar behavior to `tf.data.Dataset.batch` but completely different mechanics.
-      No other transformation can be applied after a `batch` call.
-  ```python
-import snax as sn
-import tensorflow as tf
-
-X_y=(X,y) # some random dataset
-
-# creating a dataset from tensors
-sn_dataset=sn.data.Dataset.from_tensor_slices(X_y) 
-sn_dataset.batch(1024).map(lambda x,y: x**2) ## this will raise an error
-sn_dataset.map(lambda x,y: x**2).batch(1024) ## this will not
-
-```
+  6. `batch`: similar behavior to that of `tf.data.Dataset.batch`
 
 What it does not yet support:
-  1. `apply`
-  2. `from_generator`
-  3. `concatenate`
-  4. `bucket_by_sequence_lenght`
-  5. `filter`
+  1. `from_generator`
+  2. `concatenate`
+  3. `bucket_by_sequence_lenght`
+  4. `filter`
 
 
 ## A brief history of SNAX
