@@ -110,3 +110,18 @@ def tree_update(base_tree: PyTree, ix: Array, updates: PyTree) -> PyTree:
         updated_data.append(c_d.at[jnp.array(ix)].set(c_u))
 
     return tree_unflatten(tree_def, updated_data)
+
+
+def to_jax_pytree(tree: PyTree) -> PyTree:
+    """Converts a numpy array based pytree to a jax equivalent.
+    Parameters
+    ----------
+    tree : Any
+        numpy-based pytree.
+    Returns
+    -------
+    Any
+        jax-based pytree.
+    """
+    data, tree_def = tree_flatten(tree)
+    return tree_unflatten(tree_def, list(map(jnp.asarray, data)))

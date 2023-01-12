@@ -28,9 +28,11 @@ class Dataset:
         self.sizer = sizer
         self.scheduler = scheduler
 
-        self.step = jnp.array(0)
+        # state variables
+        self.step = 0
         self.rng = jnp.array(0)
-
+        self.inc = jnp.array(1)
+        self.ref = jnp.array(0)
         self.not_ready = True
 
     def __next__(self):
@@ -43,7 +45,7 @@ class Dataset:
             return output
         else:
             self.step = 0
-            self.rng += 1
+            self.rng += self.inc
             self._schedule = filter_and_flatten(self.scheduler(self.rng))
             raise StopIteration
 
@@ -56,7 +58,7 @@ class Dataset:
         self.not_ready = False
 
     def reset(self):
-        self.rng = 0
+        self.rng = self.ref
         self.step = 0
 
     def batch(self, batch_size: int, drop_reminder: bool = False) -> "Dataset":
@@ -130,6 +132,8 @@ class Dataset:
 
     @staticmethod
     def from_tensor_slices(tensors: PyTree) -> "Dataset":
+        tensors = to_jax_pytree(tensors)
+
         def sizer():
             return tree_height(tensors)
 
