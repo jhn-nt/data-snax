@@ -9,12 +9,14 @@ from .tree_util import *
 
 
 def filter_and_flatten(schedule):
-    schedule_batches = []
-    for batch in schedule:
+    schedule_batches = [batch for batch in schedule]
+
+    def filter_and_flatten_batch(batch):
         batch = jnp.reshape(batch, (-1,))
         batch = batch[jnp.isfinite(batch)].astype(jnp.int32)
-        schedule_batches.append(batch)
-    return schedule_batches
+        return batch
+
+    return list(map(filter_and_flatten_batch, schedule_batches))
 
 
 class Dataset:
@@ -39,14 +41,10 @@ class Dataset:
         if self.not_ready:
             self.setup()
 
-        if self.step < self._size:
-            output = self.reader(self._schedule[self.step])
-            self.step += 1
-            return output
+        if self.step < self.batches_in_epoch:
+            return self.return_current_batch_and_index_next_batch()
         else:
-            self.step = 0
-            self.rng += self.inc
-            self._schedule = filter_and_flatten(self.scheduler(self.rng))
+            self.reset_epoch_and_update_rng()
             raise StopIteration
 
     def __iter__(self):
@@ -54,8 +52,18 @@ class Dataset:
 
     def setup(self):
         self._schedule = filter_and_flatten(self.scheduler(self.rng))
-        self._size = self.sizer()
+        self.batches_in_epoch = self.sizer()
         self.not_ready = False
+
+    def reset_epoch_and_update_rng(self):
+        self.step = 0
+        self.rng += self.inc
+        self._schedule = filter_and_flatten(self.scheduler(self.rng))
+
+    def return_current_batch_and_index_next_batch(self):
+        output = self.reader(self._schedule[self.step])
+        self.step += 1
+        return output
 
     def reset(self):
         self.rng = self.ref

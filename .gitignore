@@ -4,3 +4,4 @@ Dockerfile
 dev_requirements.txt
 snax/__pycache__/
 .vscode/
+*.txt
