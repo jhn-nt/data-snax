@@ -15,7 +15,7 @@ def filter_and_flatten(schedule: Int[Array, "n-batches"]):
         return batch
 
     if len(schedule.shape) == 2:
-        # for performance, unbatched sets are processed as a large batch and then split
+        # for performance, unbatched sets are processed as a single large batch and then split
         output = list(filter_and_flatten_batch(schedule))
     else:
         schedule_batches = list(schedule)
@@ -155,8 +155,12 @@ class Dataset:
     def apply(self, func: Callable[[Any], "Dataset"]) -> "Dataset":
         return func(self)
 
-    def cardinality(self):
+    def cardinality(self) -> int:
         return self.sizer()
+
+    def filter(self, predicate: Callable[[Any], bool]) -> "Dataset":
+        status_set = Dataset.zip(self, self.map(predicate))
+        return status_set
 
     @staticmethod
     def from_tensor_slices(tensors: PyTree) -> "Dataset":
@@ -201,5 +205,4 @@ class Dataset:
 
     @staticmethod
     def from_generator(self, gererator, elems: int) -> "Dataset":
-        def sizer():
-            return elems
+        pass

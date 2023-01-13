@@ -8,6 +8,7 @@ import snax.datasets as snds
 import jax.numpy as jnp
 import flax.linen as nn
 
+from tqdm import tqdm
 from jax.random import PRNGKey
 
 W = jnp.ones((784, 256))
@@ -22,5 +23,5 @@ def processing(input):
 
 van_snax = snds.load("mnist")["train"].map(processing).shuffle(PRNGKey(0)).batch(128)
 
-for batch in van_snax:
+for batch in tqdm(van_snax):
     batch
