@@ -8,15 +8,32 @@ from typing import Callable, Union, List, Iterable, Any
 from .tree_util import *
 
 
-def filter_and_flatten(schedule):
-    schedule_batches = [batch for batch in schedule]
-
+def filter_and_flatten(schedule: Int[Array, "n-batches"]):
     def filter_and_flatten_batch(batch):
         batch = jnp.reshape(batch, (-1,))
         batch = batch[jnp.isfinite(batch)].astype(jnp.int32)
         return batch
 
-    return list(map(filter_and_flatten_batch, schedule_batches))
+    if len(schedule.shape) == 2:
+        # for performance, unbatched sets are processed as a large batch and then split
+        output = list(filter_and_flatten_batch(schedule))
+    else:
+        schedule_batches = list(schedule)
+        output = list(map(filter_and_flatten_batch, schedule_batches))
+
+    return output
+
+
+def assert_same_cardinality_across_datasets(datasets: List["Dataset"]) -> int:
+    sizes = list(set(list(map(lambda x: x.sizer(), datasets))))
+    assert (
+        len(sizes) == 1
+    ), f"All datasets must have the same cardinality, found: {sizes}"
+    return sizes[0]
+
+
+def return_currentmost_schedule_as_array(dataset: "Dataset") -> Int[Array, "n-batches"]:
+    return dataset.scheduler(dataset.rng)
 
 
 class Dataset:
@@ -138,6 +155,9 @@ class Dataset:
     def apply(self, func: Callable[[Any], "Dataset"]) -> "Dataset":
         return func(self)
 
+    def cardinality(self):
+        return self.sizer()
+
     @staticmethod
     def from_tensor_slices(tensors: PyTree) -> "Dataset":
         tensors = to_jax_pytree(tensors)
@@ -157,22 +177,16 @@ class Dataset:
 
     @staticmethod
     def zip(*datasets: Iterable["Dataset"]) -> "Dataset":
-        sizes = list(set(list(map(lambda x: x.sizer(), datasets))))
-        assert (
-            len(sizes) == 1
-        ), f"All datasets must have the same cardinality, found: {sizes}"
-
-        _ = list(map(lambda x: x.setup(), datasets))
+        size = assert_same_cardinality_across_datasets(datasets)
+        root_schedules = list(map(return_currentmost_schedule_as_array, datasets))
 
         def sizer():
-            return sizes[0]
+            return size
 
         def reader(ix):
-            output = []
-            for dataset in datasets:
-                _ix = jnp.array([dataset._schedule[i] for i in ix])
-                output += tree_leaves(dataset.reader(_ix))
-            return output
+            return list(
+                map(lambda x: x[0].reader(x[1][ix]), zip(datasets, root_schedules))
+            )
 
         schedule = jnp.transpose(jnp.atleast_2d(jnp.arange(sizer())))
 
