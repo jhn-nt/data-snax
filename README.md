@@ -2,13 +2,19 @@
 ## Versatile data ingestion pipelines for `jax`
 The pun is very intended.
 
-![version](https://img.shields.io/badge/version-0.1-red)
+![version](https://img.shields.io/badge/version-0.2-red)
 ![python](https://img.shields.io/badge/python->=3.8-green)
 
 ## Installation 
 ```sh
 pip install "git+https://github.com/jhn-nt/data-snax.git"
 ```
+
+For the nightly install:
+```sh
+pip install "git+https://github.com/jhn-nt/data-snax.git@experimental"
+```
+
 
 
 
@@ -95,7 +101,7 @@ def processing(input):
 sn_dataset=ds.map(processing)
 jitted_sn_dataset=sn_dataset.jit() # boosting performance
 ```
-In a small scale testing experiment, the use of  `snax.jit()` increased speed on average by 23% compared to `tf.data.Dataset` and by 68% compared to vanilla `snax.data.Dataset`.
+In a small scale testing experiment, the use of  `snax.jit()` increased speed on average by 61% compared to `tf.data.Dataset` and by 72% compared to vanilla `snax.data.Dataset`.
 ![comparisons](images/comparisons.png)
 
 ## A note on performance

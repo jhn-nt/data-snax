@@ -78,7 +78,7 @@ def tree_index(tree: PyTree, ix: Union[int, Array]) -> PyTree:
     PyTree
         Indexed elem of a tree.
     """
-    return tree_map(lambda x: jnp.atleast_2d(x)[jnp.array(ix)], tree)
+    return tree_map(lambda x: jnp.atleast_2d(x).take(ix, axis=0), tree)
 
 
 def tree_update(base_tree: PyTree, ix: Array, updates: PyTree) -> PyTree:
