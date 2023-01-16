@@ -6,7 +6,6 @@ from jaxtyping import PyTree, Array
 from typing import Optional, Union
 
 
-@jit
 def tree_stack(a: PyTree, b: PyTree) -> PyTree:
     """Stacks Pytrees leaves.
 

@@ -11,7 +11,7 @@ from .tree_util import *
 def filter_and_flatten(
     schedule: Int[Array, "n-batches"]
 ) -> List[Int[Array, "batch_size"]]:
-    """Given a matrix of float 'schedule' it returns a list of len equal to the first dimension of schedule where each elements represent the flattened dimensions of the input"""
+    """Given a matrix of float 'schedule' it returns a list of length equal to the first dimension of schedule where each elements represent the flattened dimensions of the input"""
 
     def filter_and_flatten_batch(batch):
         batch = jnp.ravel(batch)
@@ -373,3 +373,25 @@ class Dataset:
             return schedule
 
         return Dataset(reader=reader, sizer=sizer, scheduler=scheduler)
+
+    @staticmethod
+    def concatenate(*datasets: Iterable["Dataset"]) -> "Dataset":
+        sizes = tree_map(lambda x: x.sizer(), datasets)
+        root_schedule = jnp.hstack(
+            tree_map(return_currentmost_schedule_as_array, datasets)
+        )
+
+        cumulative_size = jnp.asarray(sum(sizes))
+
+        def sizer():
+            return cumulative_size
+
+        def reader(ix):
+            nested_ix = root_schedule.take(ix)
+            # nested_readers = root_readers.take(ix)
+            pass
+
+        schedule = jnp.transpose(jnp.atleast_2d(jnp.arange(sizer())))
+
+        def scheduler(rng):
+            return schedule

@@ -24,5 +24,6 @@ van_snax = (
     snds.load("mnist")["train"].map(processing).shuffle(PRNGKey(0)).jit().batch(128)
 )
 
-for batch in van_snax:
-    batch
+for _ in range(5):
+    for batch in van_snax:
+        batch

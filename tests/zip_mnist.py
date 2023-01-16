@@ -13,7 +13,8 @@ ds = snds.load("mnist")["train"]
 ds_1 = ds.take(30000)
 ds_2 = ds.skip(30000)
 
-ds = sn.Dataset.zip(ds_1, ds_2).shuffle(PRNGKey(0))
+ds = sn.Dataset.zip(ds_1, ds_2).shuffle(PRNGKey(0)).batch(128)
 
-for batch in tqdm(ds.batch(128)):
-    batch
+for _ in range(5):
+    for batch in ds:
+        batch

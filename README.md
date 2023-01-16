@@ -115,7 +115,9 @@ In this current version it supports:
   2. `take`: behavior is similar to that of `tf.data.Dataset.take`  
   3. `skip`: behavior is similar to that of `tf.data.Dataset.skip`  
   4. `zip`: behavior is similar to that of `tf.data.Dataset.zip`  
-  5. `shuffle`: behavior is similar to `tf.data.Dataset.shuffle` but with different input signature, instead of a `buffer_size` it requires a `jax.random.PRNGKey`.  
+  5. `batch`: similar behavior to that of `tf.data.Dataset.batch`
+  6. `apply`: similar behavior to that of `tf.data.Dataset.apply`
+  7. `shuffle`: behavior is similar to `tf.data.Dataset.shuffle` but with different input signature, instead of a `buffer_size` it requires a `jax.random.PRNGKey`.  
   ```python
 import snax as sn
 import tensorflow as tf
@@ -131,7 +133,6 @@ tf_dataset=tf.data.Dataset.from_tensor_slices(X_y) # tensorflow
 sn_dataset=sn_dataset.shuffle(PRNGKey(0)) # snax
 tf_dataset=tf_dataset.shuffle(1024) # tensorflow
 ```
-  6. `batch`: similar behavior to that of `tf.data.Dataset.batch`
 
 What it does not yet support:
   1. `from_generator`
