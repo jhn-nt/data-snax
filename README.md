@@ -101,7 +101,7 @@ def processing(input):
 sn_dataset=ds.map(processing)
 jitted_sn_dataset=sn_dataset.jit() # boosting performance
 ```
-In a small scale testing experiment, the use of  `snax.jit()` increased speed on average by 61% compared to `tf.data.Dataset` and by 72% compared to vanilla `snax.data.Dataset`.
+In a small scale testing experiment, the use of  `snax.jit()` increased speed on average by 64% compared to `tf.data.Dataset` and by 75% compared to vanilla `snax.data.Dataset`.
 ![comparisons](images/comparisons.png)
 
 ## A note on performance
@@ -137,7 +137,7 @@ tf_dataset=tf_dataset.shuffle(1024) # tensorflow
 What it does not yet support:
   1. `from_generator`
   2. `concatenate`
-  3. `bucket_by_sequence_lenght`
+  3. `bucket_by_sequence_length`
   4. `filter`
 
 

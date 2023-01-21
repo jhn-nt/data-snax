@@ -1,31 +1,10 @@
-from pathlib import Path
 import jax.numpy as jnp
-import numpy as np
 import jax.random as jrn
-from jax import vmap
+from jax import vmap, jit
+from jax.lax import dynamic_slice
 from jaxtyping import PyTree, Int
 from typing import Callable, Union, List, Iterable, Any
 from .tree_util import *
-
-
-def filter_and_flatten(
-    schedule: Int[Array, "n-batches"]
-) -> List[Int[Array, "batch_size"]]:
-    """Given a matrix of float 'schedule' it returns a list of length equal to the first dimension of schedule where each elements represent the flattened dimensions of the input"""
-
-    def filter_and_flatten_batch(batch):
-        batch = jnp.ravel(batch)
-        batch = batch.take(~jnp.isnan(batch)).astype(jnp.int32)
-        return batch
-
-    if len(schedule.shape) == 2:
-        # for performance, unbatched sets are processed as a single large batch and then split
-        output = list(filter_and_flatten_batch(schedule))
-    else:
-        schedule_batches = list(schedule)
-        output = tree_map(filter_and_flatten_batch, schedule_batches)
-
-    return output
 
 
 def assert_same_cardinality_across_datasets(datasets: List["Dataset"]) -> int:
@@ -57,6 +36,23 @@ def return_currentmost_schedule_as_array(dataset: "Dataset") -> Int[Array, "n-ba
         Indexes of the current batch.
     """
     return dataset.scheduler(dataset.rng)
+
+
+def filter_and_flatten(
+    schedule: Int[Array, "n-batches"]
+) -> List[Int[Array, "batch_size"]]:
+    """Forces the in input to be 2d and filters out all elements equals to -1 in the last batch.
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    flat_schedule = jnp.reshape(schedule, (schedule.shape[0], -1))
+    schedule_list = list(flat_schedule)  # 40 ms, there is room for improvement
+    valid_index_in_last = jnp.where(schedule_list[-1] != -1, 1, 0).sum()
+    schedule_list[-1] = schedule_list[-1][:valid_index_in_last]
+    return schedule_list
 
 
 class Dataset:
@@ -145,11 +141,12 @@ class Dataset:
             Batched Dataset.
         """
         n_batches = self.sizer() // batch_size
-        extra_samples = batch_size - (self.sizer() % batch_size)
+        extra_samples = self.sizer() % batch_size
+        pad_size = batch_size - extra_samples
         n_samples = n_batches * batch_size
 
         def sizer():
-            return n_batches if drop_reminder else n_batches + 1
+            return n_batches if drop_reminder or extra_samples == 0 else n_batches + 1
 
         def scheduler(rng):
             schedule = self.scheduler(rng)
@@ -164,8 +161,10 @@ class Dataset:
                 (n_batches, batch_size, *schedule.shape[1:]),
             )
 
-            if not drop_reminder:
-                padding = jnp.nan * jnp.empty((extra_samples, *schedule.shape[1:]))
+            if not drop_reminder and extra_samples > 0:
+                padding = -1 * jnp.ones(
+                    (pad_size, *schedule.shape[1:]), dtype=jnp.int32
+                )
                 padding = jnp.expand_dims(
                     jnp.concatenate([schedule[n_samples:], padding], axis=0), axis=0
                 )
@@ -190,7 +189,7 @@ class Dataset:
         """
 
         def scheduler(rng):
-            return jrn.permutation(seed + rng, self.scheduler(rng))
+            return jrn.permutation(seed + rng, self.scheduler(rng), independent=True)
 
         return Dataset(reader=self.reader, sizer=self.sizer, scheduler=scheduler)
 
@@ -298,18 +297,15 @@ class Dataset:
         return func(self)
 
     def cardinality(self) -> int:
-        """Returns the cardinality of the dataset.
+        """Returns the number of batches in the dataset.
+        If no `batch` transformation is applied it is equivalent to the number of elements.
 
         Returns
         -------
         int
-            Cardinality of the dataset.
+            Number of batches in the dataset.
         """
         return self.sizer()
-
-    def filter(self, predicate: Callable[[Any], bool]) -> "Dataset":
-        status_set = Dataset.zip(self, self.map(predicate))
-        return status_set
 
     @staticmethod
     def from_tensor_slices(tensors: PyTree) -> "Dataset":
@@ -373,25 +369,3 @@ class Dataset:
             return schedule
 
         return Dataset(reader=reader, sizer=sizer, scheduler=scheduler)
-
-    @staticmethod
-    def concatenate(*datasets: Iterable["Dataset"]) -> "Dataset":
-        sizes = tree_map(lambda x: x.sizer(), datasets)
-        root_schedule = jnp.hstack(
-            tree_map(return_currentmost_schedule_as_array, datasets)
-        )
-
-        cumulative_size = jnp.asarray(sum(sizes))
-
-        def sizer():
-            return cumulative_size
-
-        def reader(ix):
-            nested_ix = root_schedule.take(ix)
-            # nested_readers = root_readers.take(ix)
-            pass
-
-        schedule = jnp.transpose(jnp.atleast_2d(jnp.arange(sizer())))
-
-        def scheduler(rng):
-            return schedule

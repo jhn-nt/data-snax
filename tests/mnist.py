@@ -21,7 +21,7 @@ def processing(input):
     return {"image": nn.relu(jnp.matmul(x, W)), "label": input["label"]}
 
 
-van_snax = snds.load("mnist")["train"].map(processing).shuffle(PRNGKey(0)).batch(128)
+van_snax = snds.load("mnist")["train"].map(processing).shuffle(PRNGKey(0)).batch(16)
 
 for _ in range(5):
     for batch in van_snax:
